@@ -1,0 +1,558 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2820
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww30040\viewh18900\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 First edit\
+\
+from dash import Dash, html, dcc\
+from dash.dependencies import Input, Output\
+import plotly.express as px\
+import pandas as pd\
+\
+# Dash uygulamas\uc0\u305 n\u305  ba\u351 lat\
+app = Dash(__name__)\
+\
+# Import data sets \
+#file paths\
+file1 = "C:/Users/MOBIS/Desktop/GHG emissions/EDGAR_2024_GHG_booklet_2024.xlsx"\
+file2= "C:/Users/MOBIS/Desktop/GHG emissions/EDGAR_2024_GHG_booklet_2024_fossilCO2only.xlsx"\
+file3= "C:/Users/MOBIS/Desktop/GHG emissions/CLASS.xlsx"\
+\
+excel1 = pd.ExcelFile(file1)\
+excel2 = pd.ExcelFile(file2)\
+excel3 = pd.ExcelFile(file3)\
+\
+#Load GHG totals by country data\
+ghg_totals_by_country = pd.read_excel(excel1, sheet_name= "GHG_totals_by_country")\
+#Load the Income data \
+wb_income_data = pd.read_excel(excel3, sheet_name="List of economies")\
+\
+#Data preperation \
+data = pd.merge(ghg_totals_by_country, wb_income_data, how='left', left_on='EDGAR Country Code', right_on='Code')\
+\
+#Exclude last 4 rows\
+data = data.iloc[:-4]\
+\
+# Sum emissions across all years (1970\'962023) for each country\
+year_columns = [int(year) for year in range(1970, 2024)]\
+data['Total Emissions'] = data[year_columns].sum(axis=1)\
+\
+# Calculate total world emissions\
+total_world_emissions = data['Total Emissions'].sum()\
+\
+# Calculate each country's percentage contribution\
+data['Contribution (%)'] = (data['Total Emissions'] / total_world_emissions) * 100\
+\
+# Sort countries by their contribution\
+data = data.sort_values(by='Contribution (%)', ascending=False)\
+\
+# Group by Region (Continent) and calculate total emissions\
+continent_data = data.groupby('Region', as_index=False)['Total Emissions'].sum()\
+\
+# Calculate total world emissions\
+total_world_emissions = continent_data['Total Emissions'].sum()\
+\
+# Calculate each continent's percentage contribution\
+continent_data['Contribution (%)'] = (continent_data['Total Emissions'] / total_world_emissions) * 100\
+\
+# Sort continents by their contribution\
+continent_data = continent_data.sort_values(by='Contribution (%)', ascending=False)\
+\
+# Layout of the Dash app\
+app.layout = html.Div([\
+    html.H1("Greenhouse Gas Emissions Analysis"),\
+    \
+    html.Div([\
+        # First column: Countries pie chart\
+        html.Div([\
+            html.H3("GHG Emissions by Country"),\
+            dcc.Dropdown(\
+                id='country-dropdown',\
+                options=[\
+                    \{'label': country, 'value': country\} for country in data['Country'].head(50)  # Limiting dropdown to top 50 countries\
+                ],\
+                value=data['Country'].head(10).tolist(),  # Default: top 10 countries\
+                multi=True,  # Allow multiple selections\
+                placeholder="Select countries (max 15)",\
+            ),\
+            dcc.Graph(id='country-pie-chart'),\
+        ], style=\{'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top'\}),\
+\
+        # Second column: Continents pie chart\
+        html.Div([\
+            html.H3("GHG Emissions by Continent"),\
+            dcc.Dropdown(\
+                id='continent-dropdown',\
+                options=[\
+                    \{'label': region, 'value': region\} for region in continent_data['Region']\
+                ],\
+                value=continent_data['Region'].tolist(),  # Default: all continents\
+                multi=True,  # Allow multiple selections\
+                placeholder="Select continents",\
+            ),\
+            dcc.Graph(id='continent-pie-chart'),\
+        ], style=\{'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top'\}),\
+    ])\
+])\
+\
+# Callback to update country pie chart\
+@app.callback(\
+    Output('country-pie-chart', 'figure'),\
+    [Input('country-dropdown', 'value')]\
+)\
+def update_country_pie_chart(selected_countries):\
+    if not selected_countries:\
+        selected_countries = data['Country'].head(10).tolist()  # Default to top 10 countries\
+    \
+    if len(selected_countries) > 15:\
+        selected_countries = selected_countries[:15]  # Limit to 15 selections\
+    \
+    filtered_data = data[data['Country'].isin(selected_countries)]\
+    \
+    fig = px.pie(\
+        filtered_data,\
+        names='Country',\
+        values='Contribution (%)',\
+        title='GHG Emissions by Selected Countries',\
+        hole=0.3\
+    )\
+    return fig\
+\
+# Callback to update continent pie chart\
+@app.callback(\
+    Output('continent-pie-chart', 'figure'),\
+    [Input('continent-dropdown', 'value')]\
+)\
+def update_continent_pie_chart(selected_continents):\
+    if not selected_continents:\
+        selected_continents = continent_data['Region'].tolist()  # Default to all continents\
+    \
+    filtered_data = continent_data[continent_data['Region'].isin(selected_continents)]\
+    \
+    fig = px.pie(\
+        filtered_data,\
+        names='Region',\
+        values='Contribution (%)',\
+        title='GHG Emissions by Selected Continents',\
+        hole=0.3\
+    )\
+    return fig\
+\
+# Run the app\
+if __name__ == '__main__':\
+    app.run_server(debug=True)\
+\
+\
+\
+With tabs menu\
+\
+from dash import Dash, html, dcc\
+from dash.dependencies import Input, Output\
+import plotly.express as px\
+import pandas as pd\
+\
+# Dash application\
+app = Dash(__name__, suppress_callback_exceptions=True)\
+\
+\
+# Import datasets\
+file1 = "C:/Users/MOBIS/Desktop/GHG emissions/EDGAR_2024_GHG_booklet_2024.xlsx"\
+file3 = "C:/Users/MOBIS/Desktop/GHG emissions/CLASS.xlsx"\
+\
+excel1 = pd.ExcelFile(file1)\
+excel3 = pd.ExcelFile(file3)\
+\
+# Load GHG totals by country data\
+ghg_totals_by_country = pd.read_excel(excel1, sheet_name="GHG_totals_by_country")\
+# Load the Income data\
+wb_income_data = pd.read_excel(excel3, sheet_name="List of economies")\
+\
+# Data preparation\
+data = pd.merge(ghg_totals_by_country, wb_income_data, how="left", left_on="EDGAR Country Code", right_on="Code")\
+data = data.iloc[:-4]  # Exclude last 4 rows\
+\
+# Sum emissions across all years (1970\'962023) for each country\
+year_columns = [int(year) for year in range(1970, 2024)]\
+data["Total Emissions"] = data[year_columns].sum(axis=1)\
+\
+# Calculate total world emissions\
+total_world_emissions = data["Total Emissions"].sum()\
+\
+# Calculate each country's percentage contribution\
+data["Contribution (%)"] = (data["Total Emissions"] / total_world_emissions) * 100\
+\
+# Sort countries by their contribution\
+data = data.sort_values(by="Contribution (%)", ascending=False)\
+\
+# Group by Region (Continent) and calculate total emissions\
+continent_data = data.groupby("Region", as_index=False)["Total Emissions"].sum()\
+\
+# Calculate each continent's percentage contribution\
+continent_data["Contribution (%)"] = (continent_data["Total Emissions"] / continent_data["Total Emissions"].sum()) * 100\
+\
+app.layout = html.Div(\
+    [\
+        html.Div(\
+            [\
+                html.H1(\
+                    "Greenhouse Gas Emissions Analysis",\
+                    style=\{\
+                        "textAlign": "center",\
+                        "color": "#ffffff",\
+                        "backgroundColor": "#003366",\
+                        "padding": "20px",\
+                        "marginBottom": "30px",\
+                    \},\
+                )\
+            ],\
+            style=\{"backgroundColor": "#f4f4f4"\},\
+        ),\
+        html.Div(\
+            [\
+                # Left side with tabs\
+                html.Div(\
+                    [\
+                        dcc.Tabs(\
+                            id="tabs",\
+                            value="country",\
+                            children=[\
+                                dcc.Tab(label="By Country", value="country"),\
+                                dcc.Tab(label="By Continent", value="continent"),\
+                            ],\
+                        ),\
+                        html.Div(id="tab-content"),\
+                    ],\
+                    style=\{\
+                        "width": "48%",\
+                        "display": "inline-block",\
+                        "backgroundColor": "#ffffff",\
+                        "padding": "20px",\
+                        "borderRadius": "10px",\
+                        "boxShadow": "0px 4px 6px rgba(0, 0, 0, 0.1)",\
+                    \},\
+                ),\
+                # Right side (currently blank)\
+                html.Div(\
+                    [],\
+                    style=\{\
+                        "width": "48%",\
+                        "display": "inline-block",\
+                        "marginLeft": "4%",\
+                    \},\
+                ),\
+            ],\
+            style=\{\
+                "display": "flex",\
+                "justifyContent": "center",\
+                "backgroundColor": "#f4f4f4",\
+                "padding": "20px",\
+            \},\
+        ),\
+    ],\
+    style=\{"fontFamily": "Arial, sans-serif", "backgroundColor": "#f4f4f4", "padding": "0", "margin": "0"\},\
+)\
+\
+# Callback to update tab content\
+@app.callback(Output("tab-content", "children"), [Input("tabs", "value")])\
+def render_tab_content(tab):\
+    if tab == "country":\
+        return html.Div(\
+            [\
+                dcc.Dropdown(\
+                    id="country-dropdown",\
+                    options=[\{"label": country, "value": country\} for country in data["Country"].head(50)],\
+                    value=data["Country"].head(10).tolist(),\
+                    multi=True,\
+                    placeholder="Select countries (max 15)",\
+                    style=\{"marginBottom": "20px"\},\
+                ),\
+                dcc.Graph(id="country-pie-chart"),\
+            ]\
+        )\
+    elif tab == "continent":\
+        return html.Div(\
+            [\
+                dcc.Dropdown(\
+                    id="continent-dropdown",\
+                    options=[\{"label": region, "value": region\} for region in continent_data["Region"]],\
+                    value=continent_data["Region"].tolist(),\
+                    multi=True,\
+                    placeholder="Select continents",\
+                    style=\{"marginBottom": "20px"\},\
+                ),\
+                dcc.Graph(id="continent-pie-chart"),\
+            ]\
+        )\
+\
+\
+# Callback to update country pie chart\
+@app.callback(Output("country-pie-chart", "figure"), [Input("country-dropdown", "value")])\
+def update_country_pie_chart(selected_countries):\
+    if not selected_countries:\
+        selected_countries = data["Country"].head(10).tolist()\
+\
+    filtered_data = data[data["Country"].isin(selected_countries)]\
+    fig = px.pie(\
+        filtered_data,\
+        names="Country",\
+        values="Contribution (%)",\
+        title="GHG Emissions by Selected Countries",\
+        hole=0.3,\
+    )\
+    return fig\
+\
+\
+# Callback to update continent pie chart\
+@app.callback(Output("continent-pie-chart", "figure"), [Input("continent-dropdown", "value")])\
+def update_continent_pie_chart(selected_continents):\
+    if not selected_continents:\
+        selected_continents = continent_data["Region"].tolist()\
+\
+    filtered_data = continent_data[continent_data["Region"].isin(selected_continents)]\
+    fig = px.pie(\
+        filtered_data,\
+        names="Region",\
+        values="Contribution (%)",\
+        title="GHG Emissions by Selected Continents",\
+        hole=0.3,\
+    )\
+    return fig\
+\
+\
+# Run the app\
+if __name__ == "__main__":\
+    app.run_server(debug=True)\
+\
+\
+Map included\
+\
+from dash import Dash, html, dcc\
+from dash.dependencies import Input, Output\
+import plotly.express as px\
+import pandas as pd\
+\
+# Dash application\
+app = Dash(__name__, suppress_callback_exceptions=True)\
+\
+\
+# Import datasets\
+file1 = "C:/Users/MOBIS/Desktop/GHG emissions/EDGAR_2024_GHG_booklet_2024.xlsx"\
+file3 = "C:/Users/MOBIS/Desktop/GHG emissions/CLASS.xlsx"\
+\
+excel1 = pd.ExcelFile(file1)\
+excel3 = pd.ExcelFile(file3)\
+\
+# Load GHG totals by country data\
+ghg_totals_by_country = pd.read_excel(excel1, sheet_name="GHG_totals_by_country")\
+# Load the Income data\
+wb_income_data = pd.read_excel(excel3, sheet_name="List of economies")\
+\
+# Data preparation\
+data = pd.merge(ghg_totals_by_country, wb_income_data, how="left", left_on="EDGAR Country Code", right_on="Code")\
+data = data.iloc[:-4]  # Exclude last 4 rows\
+\
+# Sum emissions across all years (1970\'962023) for each country\
+year_columns = [int(year) for year in range(1970, 2024)]\
+data["Total Emissions"] = data[year_columns].sum(axis=1)\
+\
+# Calculate total world emissions\
+total_world_emissions = data["Total Emissions"].sum()\
+\
+# Calculate each country's percentage contribution\
+data["Contribution (%)"] = (data["Total Emissions"] / total_world_emissions) * 100\
+\
+# Sort countries by their contribution\
+data = data.sort_values(by="Contribution (%)", ascending=False)\
+\
+# Group by Region (Continent) and calculate total emissions\
+continent_data = data.groupby("Region", as_index=False)["Total Emissions"].sum()\
+\
+# Calculate each continent's percentage contribution\
+continent_data["Contribution (%)"] = (continent_data["Total Emissions"] / continent_data["Total Emissions"].sum()) * 100\
+\
+app.layout = html.Div(\
+    [\
+        html.Div(\
+            [\
+                html.H1(\
+                    "Greenhouse Gas Emissions Analysis",\
+                    style=\{\
+                        "textAlign": "center",\
+                        "color": "#ffffff",\
+                        "backgroundColor": "#003366",\
+                        "padding": "20px",\
+                        "marginBottom": "30px",\
+                    \},\
+                )\
+            ],\
+            style=\{"backgroundColor": "#f4f4f4"\},\
+        ),\
+        html.Div(\
+            [\
+                # Left side with tabs\
+                html.Div(\
+                    [\
+                        dcc.Tabs(\
+                            id="tabs",\
+                            value="country",\
+                            children=[\
+                                dcc.Tab(label="By Country", value="country"),\
+                                dcc.Tab(label="By Continent", value="continent"),\
+                            ],\
+                        ),\
+                        html.Div(id="tab-content"),\
+                    ],\
+                    style=\{\
+                        "width": "48%",\
+                        "display": "inline-block",\
+                        "backgroundColor": "#ffffff",\
+                        "padding": "20px",\
+                        "borderRadius": "10px",\
+                        "boxShadow": "0px 4px 6px rgba(0, 0, 0, 0.1)",\
+                    \},\
+                ),\
+                # Right side (currently blank)\
+              \
+                # Right Section: World Map\
+                html.Div(\
+                    [\
+                        html.H3(\
+                            "Global Greenhouse Gas Emissions",\
+                            style=\{'textAlign': 'center', 'marginBottom': '20px'\}\
+                        ),\
+                       dcc.Graph(\
+                            id='ghg-world-map',\
+                            style=\{\
+                            'height': '400px',  # Larger height for the map\
+                            'width': '100%'    # Full width within the container\
+                    \}\
+                )\
+                    ],\
+                    style=\{\
+                       'width': '50%',  # Increased width for the map section\
+                        'display': 'inline-block',\
+                        'verticalAlign': 'top',\
+                        'backgroundColor': '#ffffff',\
+                        'padding': '20px',\
+                        'borderRadius': '10px',\
+                        'boxShadow': '0px 4px 6px rgba(0, 0, 0, 0.1)',\
+                        'marginLeft': '4%'\
+                    \}\
+                )\
+            ],\
+            style=\{'display': 'flex', 'justifyContent': 'center'\}\
+        )\
+    ],\
+    style=\{'fontFamily': 'Arial, sans-serif', 'backgroundColor': '#f4f4f4'\}\
+)\
+\
+# Callback to update tab content\
+@app.callback(Output("tab-content", "children"), [Input("tabs", "value")])\
+def render_tab_content(tab):\
+    if tab == "country":\
+        return html.Div(\
+            [\
+                dcc.Dropdown(\
+                    id="country-dropdown",\
+                    options=[\{"label": country, "value": country\} for country in data["Country"].head(50)],\
+                    value=data["Country"].head(10).tolist(),\
+                    multi=True,\
+                    placeholder="Select countries (max 15)",\
+                    style=\{"marginBottom": "20px"\},\
+                ),\
+                dcc.Graph(id="country-pie-chart"),\
+            ]\
+        )\
+    elif tab == "continent":\
+        return html.Div(\
+            [\
+                dcc.Dropdown(\
+                    id="continent-dropdown",\
+                    options=[\{"label": region, "value": region\} for region in continent_data["Region"]],\
+                    value=continent_data["Region"].tolist(),\
+                    multi=True,\
+                    placeholder="Select continents",\
+                    style=\{"marginBottom": "20px"\},\
+                ),\
+                dcc.Graph(id="continent-pie-chart"),\
+            ]\
+        )\
+\
+\
+# Callback to update country pie chart\
+@app.callback(Output("country-pie-chart", "figure"), [Input("country-dropdown", "value")])\
+def update_country_pie_chart(selected_countries):\
+    if not selected_countries:\
+        selected_countries = data["Country"].head(10).tolist()\
+\
+    filtered_data = data[data["Country"].isin(selected_countries)]\
+    fig = px.pie(\
+        filtered_data,\
+        names="Country",\
+        values="Contribution (%)",\
+        title="GHG Emissions by Selected Countries",\
+        hole=0.3,\
+    )\
+    return fig\
+\
+\
+# Callback to update continent pie chart\
+@app.callback(Output("continent-pie-chart", "figure"), [Input("continent-dropdown", "value")])\
+def update_continent_pie_chart(selected_continents):\
+    if not selected_continents:\
+        selected_continents = continent_data["Region"].tolist()\
+\
+    filtered_data = continent_data[continent_data["Region"].isin(selected_continents)]\
+    fig = px.pie(\
+        filtered_data,\
+        names="Region",\
+        values="Contribution (%)",\
+        title="GHG Emissions by Selected Continents",\
+        hole=0.3,\
+    )\
+    return fig\
+\
+\
+# World map callback\
+@app.callback(\
+    Output('ghg-world-map', 'figure'),\
+    [Input('tabs', 'value')]\
+)\
+def update_world_map(tab):\
+    \
+    fig = px.choropleth(\
+        data,\
+        locations='EDGAR Country Code',  # Using ISO codes\
+        locationmode='ISO-3',\
+        color='Total Emissions',\
+        hover_name='Country',\
+        color_continuous_scale=px.colors.sequential.Plasma,\
+        title='Global Greenhouse Gas Emissions per Country'\
+    )\
+    # Adjust layout for the map\
+    fig.update_layout(\
+        geo=dict(\
+            showframe=False,\
+            showcoastlines=True,\
+            projection_type='natural earth'\
+        ),\
+        coloraxis_colorbar=dict(\
+            title="Emissions (Mt CO2e)",\
+            thickness=10,  # Reducing the thickness of the legend\
+            len=0.4,       # Reducing the height of the legend\
+            titlefont=dict(size=10),  # Smaller font for the legend title\
+            tickfont=dict(size=8)     # Smaller font for legend ticks\
+        ),\
+        margin=\{"r": 0, "t": 50, "l": 10, "b": 0\},  # Minimal margins\
+    )\
+    return fig\
+\
+\
+# Run the app\
+if __name__ == "__main__":\
+    app.run_server(debug=True)\
+\
+}
