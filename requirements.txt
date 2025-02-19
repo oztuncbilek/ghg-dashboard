@@ -3,7 +3,7 @@ aiofiles==22.1.0
 aiohappyeyeballs==2.4.6
 aiohttp==3.11.12
 aioitertools==0.9.0
-aiosignal @ file:///tmp/build/80754af9/aiosignal_1637843061372/work
+aiosignal==1.2.0
 aiosqlite @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_3d75lecab1/croot/aiosqlite_1683773918307/work
 alabaster @ file:///home/ktietz/src/ci/alabaster_1611921544520/work
 anaconda-anon-usage @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_6dviz_3v0e/croot/anaconda-anon-usage_1695305101164/work
