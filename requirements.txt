@@ -1,5 +1,5 @@
 aiobotocore==2.19.0
-aiofiles @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_f56ag8l7kr/croot/aiofiles_1683773599608/work
+aiofiles==22.1.0
 aiohappyeyeballs==2.4.6
 aiohttp==3.11.12
 aioitertools @ file:///tmp/build/80754af9/aioitertools_1607109665762/work
