@@ -248,8 +248,9 @@ def update_world_map(tab):
     )
     return fig
 
-# Run the app
+
+server = app.server  
+
+# Run dash app
 if __name__ == "__main__":
     app.run_server(debug=True)
-
-    server = app.server
