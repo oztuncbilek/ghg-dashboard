@@ -251,3 +251,5 @@ def update_world_map(tab):
 # Run the app
 if __name__ == "__main__":
     app.run_server(debug=True)
+
+    server = app.server
