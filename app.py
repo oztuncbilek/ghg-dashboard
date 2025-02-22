@@ -238,11 +238,10 @@ def update_world_map(tab):
             projection_type='natural earth'
         ),
         coloraxis_colorbar=dict(
-            title="Log Emissions (log10)",
+            title=dict(text="Log Emissions (log10)", font=dict(size=10)),  
             thickness=8,  # Slimmer legend
             len=0.35,     # Shorter legend
-            titlefont=dict(size=10),  # Smaller font for the legend title
-            tickfont=dict(size=8)     # Smaller font for the legend ticks
+            tickfont=dict(size=8)  # Smaller font for the legend ticks
         ),
         margin={"r": 10, "t": 50, "l": 10, "b": 10},  # Tight margins
     )
