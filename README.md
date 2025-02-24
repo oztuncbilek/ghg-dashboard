@@ -6,11 +6,11 @@ The **GHG Emissions Dashboard** provides an interactive visualization of global 
 
 ### Key Features
 
-✔ **GHG Growth Trends** – Evolution of emissions in the Euro Area, EU27, and worldwide.\
-✔ **GHG Emissions by Income Groups** – Comparison of emissions per capita based on World Bank income classifications.\
-✔ **Country & Continent Contribution** – Breakdown of total global emissions by individual countries and continents.\
-✔ **Interactive Visualization** – Dynamic charts and maps using Dash and Plotly.\
-✔ **Choropleth World Map** – Visualize GHG emissions per country with color scaling.
+**GHG Growth Trends** – Evolution of emissions in the Euro Area, EU27, and worldwide.\
+**GHG Emissions by Income Groups** – Comparison of emissions per capita based on World Bank income classifications.\
+**Country & Continent Contribution** – Breakdown of total global emissions by individual countries and continents.\
+**Interactive Visualization** – Dynamic charts and maps using Dash and Plotly.\
+**Choropleth World Map** – Visualize GHG emissions per country with color scaling.
 
 ### Technologies Used
 
@@ -20,9 +20,9 @@ The **GHG Emissions Dashboard** provides an interactive visualization of global 
 
 ### Future Enhancements
 
-🔹 **Prediction Model** – Implement machine learning (ARIMA, LSTM) to predict future GHG emissions.\
-🔹 **Time Slider for the Map** – Add a year-based slider to explore emissions over time dynamically.\
-🔹 **Enhanced UI** – Improve styling, responsiveness, and overall UX.
+ **Prediction Model** – Implement machine learning (ARIMA, LSTM) to predict future GHG emissions.\
+ **Time Slider for the Map** – Add a year-based slider to explore emissions over time dynamically.\
+ **Enhanced UI** – Improve styling, responsiveness, and overall UX.
 
 ---
 
@@ -68,9 +68,4 @@ The project is deployed on **Render**.  **Live Demo:** [https://ghg-dashboard.on
 **European Commission - EDGAR GHG Emissions Report**\
  [EDGAR Data Download](https://edgar.jrc.ec.europa.eu/report_2024?vis=ghgpop#data_download)
 
----
-
- **Created by **[**Ozan Tuncbilek**](https://github.com/oztuncbilek)\
- **January 2025**\
- "Data Science | GIS | Visualization"
 
