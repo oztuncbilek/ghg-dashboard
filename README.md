@@ -18,6 +18,12 @@ The **GHG Emissions Dashboard** provides an interactive visualization of global 
 - **Data Processing & Visualization**
 - **Deployment on Render & GitHub Pages**
 
+### Dashboard Example
+
+Below is the example of the dashboard that is deployed in ghg-dashboard.onrender.com/
+
+![Dashboard ](charts /dashboard.png)
+
 ### Future Enhancements
 
  **Prediction Model** – Implement machine learning (ARIMA, LSTM) to predict future GHG emissions.\
