@@ -20,7 +20,7 @@ The **GHG Emissions Dashboard** provides an interactive visualization of global 
 
 ### Dashboard Example
 
-Below is the example of the dashboard that is deployed in ghg-dashboard.onrender.com/
+Below is the example of the dashboard that is deployed.
 
 ![Dashboard ](charts/dashboard.png)
 
